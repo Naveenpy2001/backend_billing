@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-@_vhrp3!bc&&3w119v4b0abub2+6&&huf7#v+2zda967d2jt5v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['billing.tsaritservices.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
