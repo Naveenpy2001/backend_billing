@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{ sale.invoice_number }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.4;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .shop-info {
+            width: 60%;
+        }
+        
+        .invoice-info {
+            width: 35%;
+            text-align: right;
+        }
+        
+        .invoice-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2e7d32; /* Dark green */
+            margin-bottom: 5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: #4caf50; /* Medium green */
+            color: white;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .customer-info {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        
+        th {
+            background-color: #e8f5e9; /* Light green */
+            color: #1b5e20; /* Dark green */
+            padding: 6px 8px;
+            text-align: left;
+            border: 1px solid #c8e6c9; /* Very light green */
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 6px 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .totals {
+            width: 200px;
+            float: right;
+            margin-top: 10px;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        
+        .grand-total {
+            font-weight: bold;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            clear: both;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="shop-info">
+            <h2 style="margin:0;color:#1b5e20;">{{ shop_details.name }}</h2>
+            <p style="margin:5px 0;">{{ shop_details.address }}</p>
+            <p style="margin:5px 0;">Phone: {{ shop_details.phone }} | Email: {{ shop_details.email }}</p>
+            <p style="margin:5px 0;">GSTIN: {{ shop_details.gstin }}</p>
+        </div>
+        
+        <div class="invoice-info">
+            <div class="invoice-title">INVOICE</div>
+            <p style="margin:3px 0;"><span class="badge">PAID</span></p>
+            <p style="margin:3px 0;">#{{ sale.invoice_number }}</p>
+            <p style="margin:3px 0;">Issued: {{ date }}</p>
+            <p style="margin:3px 0;">Due: {{ date }}</p>
+        </div>
+    </div>
+    
+    <div class="customer-info">
+        <h3 style="margin:0 0 8px 0;color:#1b5e20;">Bill To:</h3>
+        <p style="margin:4px 0;">{{ sale.customer_name }}</p>
+        {% if sale.customer_phone %}<p style="margin:4px 0;">Phone: {{ sale.customer_phone }}</p>{% endif %}
+        {% if sale.customer_address %}<p style="margin:4px 0;">Address: {{ sale.customer_address }}</p>{% endif %}
+        {% if sale.customer_gst %}<p style="margin:4px 0;">GSTIN: {{ sale.customer_gst }}</p>{% endif %}
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Item</th>
+                <th>HSN/SAC</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Tax</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale.items.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.product.hsn_code|default:'-' }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.sale_price }}</td>
+                <td>{{ item.tax_rate }}%</td>
+                <td>{{ item.total_amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="totals">
+        <div class="total-row">
+            <span>Subtotal:</span>
+            <span>{{ sale.taxable_amount }}</span>
+        </div>
+        <div class="total-row">
+            <span>Tax:</span>
+            <span>{{ sale.tax_amount }}</span>
+        </div>
+        {% if sale.discount > 0 %}
+        <div class="total-row">
+            <span>Discount:</span>
+            <span>-{{ sale.discount }}</span>
+        </div>
+        {% endif %}
+        <div class="total-row grand-total">
+            <span>Total:</span>
+            <span>{{ sale.total_amount }}</span>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Thank you for your business!</p>
+        <p>{{ shop_details.name }} | {{ shop_details.phone }} | {{ shop_details.email }}</p>
+        <p>Invoice was created on {{ date }}</p>
+    </div>
+</body>
+</html>
